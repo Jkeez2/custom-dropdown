@@ -1,0 +1,31 @@
+.Dropdown {
+    width: 30%;
+    position: relative;
+
+    .Dropdown-button {
+        border: 1px solid #ccc;
+        padding: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        cursor: pointer;
+
+        .Select {
+            color: #555;
+        }
+
+        .Select-direction {
+            margin-left: auto;
+        }
+    }
+
+    .Dropdown-options {
+        max-height: 200px;
+        overflow: auto;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: #eaeaea;
+        border: 1px solid #ccc;
+    }
+}
