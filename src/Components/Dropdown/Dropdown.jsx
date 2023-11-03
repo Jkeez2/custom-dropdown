@@ -8,6 +8,7 @@ const Dropdown = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
+    const [selectedOptions, setSelectedOptions] = useState([]);
 
     /**
      * React's hook called at initialization
@@ -32,13 +33,48 @@ const Dropdown = () => {
         });
     }, []);
 
+    /**
+     * Handles option selection/deselection
+     * @param option selected item
+     */
+    function handleSelect(option) {
+        // Already selected option
+        if (selectedOptions.includes(option)) {
+            const updatedOptions = selectedOptions.filter((item) => item !== option);
+            setSelectedOptions(updatedOptions);
+        } else {
+            // Adding option
+            setSelectedOptions([...selectedOptions, option]);
+        }
+    }
+
     return (
         <div className={"Dropdown"}>
             <div
                 onClick={() => setIsOpen(!isOpen)}
                 className={"Dropdown-button"}
             >
+                {selectedOptions.length > 0 ? (
+                    selectedOptions.map((option) => (
+                        <div
+                            key={option.id}
+                            className={"Selected-option"}
+                        >
+                            <span>{option.API}</span>
+                            <span
+                                className={"Cross"}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSelect(option);
+                                }}
+                            >
+                &#x2715;
+              </span>
+                        </div>
+                    ))
+                ) : (
                     <span className={"Select"}>Sélectionner une option</span>
+                )}
 
                 <span className={"Select-direction"}>{isOpen ? '▲' : '▼'}</span>
             </div>
@@ -52,7 +88,14 @@ const Dropdown = () => {
                         <div>
                             {data.map((option) => (
                                 <div
-                                     key={option.API}>
+                                    style={{
+                                        // Different background color when item is selected
+                                        backgroundColor: selectedOptions.some((item) => item.API === option.API) ? '#009866' : '',
+                                        padding: '5px',
+                                        cursor: 'pointer',
+                                    }}
+                                    onClick={() => handleSelect(option)}
+                                    key={option.API}>
                                     <span>{option.API}</span>
                                 </div>
                             ))}
