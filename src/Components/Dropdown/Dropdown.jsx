@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './Dropdown.css';
 
@@ -9,12 +9,16 @@ const Dropdown = () => {
     const [error, setError] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOptions, setSelectedOptions] = useState([]);
+    const dropdownRef = useRef(null);
+    const itemsPerPage = 30; // Items per page
+    const [page, setPage] = useState(1);
 
     /**
      * React's hook called at initialization
      * Here we call a public API that returns APIs
      */
     useEffect(() => {
+        console.log(1)
         const fetchData = async () => {
             setLoading(true);
             try {
@@ -34,6 +38,31 @@ const Dropdown = () => {
     }, []);
 
     /**
+     * React's hook that add event listener to scroll
+     */
+    useEffect(() => {
+        console.log(2)
+        const handleScroll = () => {
+            if (
+                dropdownRef.current.scrollTop + dropdownRef.current.clientHeight >= dropdownRef.current.scrollHeight
+            ) {
+                // Load next data when we are at the end of scroll height
+                setPage((prevPage) => prevPage + 1);
+            }
+        };
+        if (dropdownRef.current) {
+            dropdownRef.current.addEventListener('scroll', handleScroll);
+        }
+
+        // Clean up
+        return () => {
+            if (dropdownRef.current) {
+                dropdownRef.current.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, [isOpen]);
+
+    /**
      * Handles option selection/deselection
      * @param option selected item
      */
@@ -47,6 +76,9 @@ const Dropdown = () => {
             setSelectedOptions([...selectedOptions, option]);
         }
     }
+
+    // Pagination
+    const renderData = data.slice(0, page * itemsPerPage);
 
     return (
         <div className={"Dropdown"}>
@@ -79,14 +111,14 @@ const Dropdown = () => {
                 <span className={"Select-direction"}>{isOpen ? '▲' : '▼'}</span>
             </div>
             {isOpen && (
-                <div className={"Dropdown-options"}>
+                <div className={"Dropdown-options"} ref={dropdownRef}>
                     {loading ? (
                         <p>Loading...</p>
                     ) : error ? (
                         <p>Error: {error.message}</p>
                     ) : (
                         <div>
-                            {data.map((option) => (
+                            {renderData.map((option) => (
                                 <div
                                     style={{
                                         // Different background color when item is selected
